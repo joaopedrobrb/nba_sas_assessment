@@ -14,8 +14,10 @@ from dotenv import load_dotenv
 ## WARNING: BEFORE RUNNING, PLEASE INSTALL THE FILE config/requirements.txt with command: pip install -r config/requirements.txt 
 
 ## Replace the next variables with your directory of preference ##
-folder_raw = '/workspace/nba_sas_assessment/raw_data' # directory to save and process raw data
-folder_tmp_path = "/workspace/nba_sas_assessment/raw_data/tmp" # directory to store json raw data
+
+folder_raw = '/workspace/nba_sas_assessment/raw_data' 
+folder_tmp_path = "/workspace/nba_sas_assessment/raw_data/tmp" # store json temp
+output_parquet_path = "/workspace/nba_sas_assessment/processed_files"
 
 ## Replace the next variables with the path to postgres jar file and .env with credencials to access neon.tech ##
 jar_postgres_path = '/workspace/nba_sas_assessment/config/jar/postgresql-42.5.1.jar'
@@ -31,7 +33,7 @@ struct_spark = struct_field_create()
         # 1) If you already had uploaded the file (.7z) inside the 'folder_raw', you can ignore the next variable containing a list
         # 2) If you want to download one or more files and store into the 'folder_raw', fill the list 'urls_list' with the desired links to download
 
-urls_list = ['https://github.com/sealneaward/nba-movement-data/raw/master/data/01.01.2016.CHA.at.TOR.7z']
+urls_list = []
 
 
 # Extract the game files from raw
@@ -55,14 +57,19 @@ for i in range(0,len(game_files)):
     home_team = home_team_df(spark=spark,data_to_process=get_home_players_info,struct_spark=struct_spark)
     # Transform ball movement into dataframe
     location_of_the_ball = location_of_the_ball_df(spark=spark,data_to_process=get_location_data,struct_spark=struct_spark)
-    print(f'{env_postgres_credentials,jar_postgres_path}')
-    # Append all these dataframes into our database
+        ## TWO OPTIONS:
+                # 1) Write parquet output on 'output_parquet_path' folder
+                # 2) Write into neon.tech database throught 'append_to_postgres' function 
+                # With all these following codes, I'm doing both of the options =)
+    write_parquet = write_parquet(location_data=location_of_the_ball,home_data=home_team,visitant_data=visitant_team,team_data=team_data,path=output_parquet_path)
+
+    # Append all these dataframes into our neon.tech database
     append_to_postgres(location_data=location_of_the_ball\
                        ,home_data=home_team\
                        ,visitant_data=visitant_team\
                        ,team_data=team_data\
                        ,jar=jar_postgres_path\
-                       )#,cred=env_postgres_credentials)
+                       )
 
     # Remove JSON files to clean the folder
     remove_json_files(path=folder_tmp_path,game_file=game_files[i])

@@ -1,5 +1,5 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.types import StructType,StructField, StringType, LongType, IntegerType, FloatType
+from pyspark.sql.types import StructType,StructField,StringType,LongType,IntegerType,FloatType,DateType
 from pyspark.sql.functions import *
 import pyspark.pandas as pd
 import os
@@ -33,7 +33,7 @@ struct_spark = struct_field_create()
         # 1) If you already had uploaded the file (.7z) inside the 'folder_raw', you can ignore the next variable containing a list
         # 2) If you want to download one or more files and store into the 'folder_raw', fill the list 'urls_list' with the desired links to download
 
-urls_list = []
+urls_list = ['https://github.com/sealneaward/nba-movement-data/raw/master/data/01.01.2016.CHA.at.TOR.7z']
 
 
 # Extract the game files from raw

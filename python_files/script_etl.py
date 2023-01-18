@@ -318,3 +318,16 @@ def remove_json_files(path,game_file):
     os.remove(f'{path}/{game_file}')
 
     return print(f'{path}/{game_file} deleted')
+
+
+def write_parquet(location_data,home_data,visitant_data,team_data,path):
+
+    location_data.write.mode('append').parquet(f'{path}/location_data')
+
+    all_players_on_game = home_data.union(visitant_data).distinct()
+
+    all_players_on_game.write.mode('append').parquet(f'{path}/players_data')
+
+    team_data.write.mode('append').parquet(f'{path}/team_data')
+
+    return print('Output saved')

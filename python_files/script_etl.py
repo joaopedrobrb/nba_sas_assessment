@@ -15,7 +15,8 @@ def create_spark_session(jar_file_path):
     # create our spark context to create dataframe based on json parsing 
     jar = jar_file_path
     sparkClassPath = os.getenv('SPARK_CLASSPATH', jar)
-    spark = (SparkSession.builder.config('spark.jars', f'file:{sparkClassPath}').config('spark.executor.extraClassPath', sparkClassPath).config('spark.driver.extraClassPath', sparkClassPath).appName("PySpark processing NBA data")\
+    spark = (SparkSession.builder.config('spark.jars', f'file:{sparkClassPath}').config('spark.executor.extraClassPath', sparkClassPath).config('spark.driver.extraClassPath', sparkClassPath)\
+        .config("spark.executor.memory", "4g").config("spark.driver.memory", "4g").appName("PySpark processing NBA data")\
     .getOrCreate())
     
     return spark
@@ -327,7 +328,7 @@ def write_parquet(location_data,home_data,visitant_data,team_data,path):
     visitant_data = visitant_data.withColumn('game_date', col('game_date').cast("date"))
 
     team_data = team_data.withColumn('game_date', col('game_date').cast("date"))
-    
+
     location_data.write.mode('append').parquet(f'{path}/location_data')
 
     all_players_on_game = home_data.union(visitant_data).distinct()

@@ -1,7 +1,8 @@
 from pyspark.sql import SparkSession
 from pyspark.sql.types import StructType,StructField,StringType,LongType,IntegerType,FloatType,DateType
 from pyspark.sql.functions import *
-import pyspark.pandas as pd
+import pandas as pd
+import pyspark.pandas as ps
 import os
 from urllib import request
 from py7zr import unpack_7zarchive

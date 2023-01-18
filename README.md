@@ -1,6 +1,6 @@
 ## Spurs Data Engineer Technical Assessment
 
-Hi! My name is João Pedro and this is my repository with all files and codes that I made. Please install the pip requirements disponible on before run the scripts.
+Hi! My name is João Pedro and this is my repository with all files and codes that I made. Please install the pip requirements disponible on the following path before run the scripts.
 >**nba_sas_assessment/config/requirements.txt** 
 
 

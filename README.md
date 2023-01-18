@@ -20,7 +20,7 @@ Hi! My name is João Pedro and this is my repository with all files and codes th
 
 Here is a detailed explanation of my concept when I was facing this challenge:
 
-# - EXTRACT
+ - **EXTRACT**
 
     At the first step, we have two paths that we can follow: insert 'links' of raw data into **urls_list** variable (then the code will download all the links on the raw_data folder).
     The second path is just drag and drop the **.7z** file on raw_data folder and let the **urls_list** variable empty (so we can avoid doing repeated transformations).
@@ -28,7 +28,7 @@ Here is a detailed explanation of my concept when I was facing this challenge:
 
     We can also schedule a **'FileSensor'** or **'HttpSensor'** on Airflow with the purpose of check if we have new data into the raw folder or download the JSON from HTTP with HttpSensor.
 
-# - TRANSFORM
+ - **TRANSFORM**
 	
 	After the arrival of JSON data, we now can interact with these files and give ‘purpose’ to the data. In the JSON, we have basically four main keys: **’gameid’** (represents the game identifier), **‘gamedate’** (date of the game in format yyyy-mm-dd), ‘events’ representing all the events from the game and their respective **‘moments’** (key nested to events which represents all the moments of the game, with the **x/y/z** location of the ball and players). We also have the **‘visitor’** and **‘home’** keys nested inside the **‘events’** key which represents all **‘players’** and **’teams’** data. All the functions are inside of this python file: **spark_etl.py** 
     A good functionality that PySpark has is the **printSchema()** function, which allows us to see what I exposed previously: the json keys and their values (and the keys again if there are some nested values). This was very useful to build the logic to acess JSON data.
@@ -39,7 +39,7 @@ Here is a detailed explanation of my concept when I was facing this challenge:
 
     All this block can be connected to Airflow and triggered after the file arrival or Http download.
 
-# - LOAD
+ - **LOAD**
 
     With the spark dataframes created, we are able to put our data into Postgres. I’m using the neon.tech provider to run a cloud Postgres RDBMS. Once my database was created, it’s time to create our schemas and tables. I’m working with two schemas: game_facts to store the ball and players movement data and teams_data to store teams and players data. All **‘CREATE TABLE’** scripts are disponible on this folder inside this folder: **nba_sas_assessment/sql_files**
 	At the end of the python script, we'll do the ingestion of three tables: game_facts.**ball_and_players_location**, teams_dimensions.**team_data** and teams_dimensions.**players_data.**

@@ -1,5 +1,5 @@
 from pyspark.sql import SparkSession
-from pyspark.sql.types import StructType,StructField, StringType, LongType, IntegerType, FloatType
+from pyspark.sql.types import StructType,StructField,StringType,LongType,IntegerType,FloatType,DateType
 from pyspark.sql.functions import *
 import pyspark.pandas as pd
 import os
@@ -90,7 +90,7 @@ def get_teams_data(game_files,folder_tmp_path):
     # catching up the key 'events' so we can go inside of the key values 
     events = data['events'][0]
     teams = []
-    teams.extend((events['home']['name'],events['home']['abbreviation'],events['home']['teamid'],events['visitor']['name'],events['visitor']['abbreviation'],events['visitor']['teamid'],data['gameid']))
+    teams.extend((events['home']['name'],events['home']['abbreviation'],events['home']['teamid'],events['visitor']['name'],events['visitor']['abbreviation'],events['visitor']['teamid'],data['gameid'],data['gamedate']))
 
     return [teams]
 
@@ -111,7 +111,7 @@ def get_players_dimension_home(game_files,folder_tmp_path):
     players_query = data_home[0]['home']['players']
     for i in players_query:
         player_data_home.append([i for i in players_query[c_home].values()])
-        player_data_home[-1].extend((data['gameid'],data_home[c_home]['home']['teamid']))
+        player_data_home[-1].extend((data['gameid'],data_home[c_home]['home']['teamid'],data['gamedate']))
         c_home += 1
 
     return player_data_home
@@ -132,7 +132,7 @@ def get_players_dimension_visitant(game_files,folder_tmp_path):
     players_query = data_visitant[0]['visitor']['players']
     for i in players_query:
         player_data_visitant.append([i for i in players_query[c_visitant].values()])
-        player_data_visitant[-1].extend((data['gameid'],data_visitant[c_visitant]['visitor']['teamid']))
+        player_data_visitant[-1].extend((data['gameid'],data_visitant[c_visitant]['visitor']['teamid'],data['gamedate']))
         c_visitant += 1    
     c =+ 1
 
@@ -159,7 +159,7 @@ def get_location_of_ball(game_files,folder_tmp_path):
             # select the value where ball and player location are stored
             for ball_or_player in location[5]:
                 # 'extend' allow create a list with multiple info, so we can load this into spark dataframe (horizontal data)
-                ball_or_player.extend((location[2], location[3], location[0], data['gameid'], event_id))
+                ball_or_player.extend((location[2], location[3], location[0], data['gameid'], event_id, data['gamedate']))
                 location_data.append(ball_or_player)
         # break
 
@@ -181,6 +181,7 @@ def struct_field_create():
         StructField("period", IntegerType(),True),
         StructField("game_id", StringType(),True),
         StructField("event_id", StringType(),True),
+        StructField("game_date", StringType(),True)
         ]
     )
 
@@ -192,7 +193,8 @@ def struct_field_create():
         StructField("jersey_number",StringType(),True),
         StructField("position", StringType(),True),
         StructField("game_id", StringType(),True),
-        StructField("team_id", StringType(),True)
+        StructField("team_id", StringType(),True),
+        StructField("game_date", StringType(),True)
         ]
     )
 
@@ -203,7 +205,9 @@ def struct_field_create():
         StructField("visitant_team_name",StringType(),True),
         StructField("visitant_team_abbreviation", StringType(),True),
         StructField("visitant_team_id", LongType(),True),
-        StructField("game_id", StringType(),True)
+        StructField("game_id", StringType(),True),
+        StructField("game_date", StringType(),True)
+    
         ]
     )
 
@@ -238,22 +242,16 @@ def location_of_the_ball_df(spark,data_to_process,struct_spark):
 
     return location_of_the_ball
 
-def data_from_postgres(jar):
-
-    load_dotenv('/workspace/nba_ball_movement/postgres_login.env')
-    df = spark.read.format("jdbc").option("url", URL)\
-    .option("user", USER)\
-    .option("password", PASS)\
-    .option("dbtable", 'teams_dimensions.team_data')\
-    .option("driver", "org.postgresql.Driver")\
-    .load()
-
-    location_of_the_ball = df.join(df2, ['index'], 'outer') \
-    .select('index', coalesce(df2.A, df1.A), coalesce(df2.B, df1.B)).toDF('index', 'A', 'B') \
-    .orderBy('index').show(20, False)
-
 
 def append_to_postgres(location_data,home_data,visitant_data,team_data,jar):
+
+    location_data = location_data.withColumn('game_date', col('game_date').cast("date"))
+
+    home_data = home_data.withColumn('game_date', col('game_date').cast("date"))
+
+    visitant_data = visitant_data.withColumn('game_date', col('game_date').cast("date"))
+
+    team_data = team_data.withColumn('game_date', col('game_date').cast("date"))
 
     load_dotenv('./workspace/nba_sas_assessment/config/postgres_login.env')
     URL = "jdbc:postgresql://ep-rapid-cloud-796936.us-east-2.aws.neon.tech/neondb?user=joaopedro.brb&password=ymFheQfG70XC"
@@ -321,7 +319,15 @@ def remove_json_files(path,game_file):
 
 
 def write_parquet(location_data,home_data,visitant_data,team_data,path):
+    
+    location_data = location_data.withColumn('game_date', col('game_date').cast("date"))
 
+    home_data = home_data.withColumn('game_date', col('game_date').cast("date"))
+
+    visitant_data = visitant_data.withColumn('game_date', col('game_date').cast("date"))
+
+    team_data = team_data.withColumn('game_date', col('game_date').cast("date"))
+    
     location_data.write.mode('append').parquet(f'{path}/location_data')
 
     all_players_on_game = home_data.union(visitant_data).distinct()

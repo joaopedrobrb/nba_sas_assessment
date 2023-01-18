@@ -18,3 +18,5 @@ create table if not exists game_facts.ball_and_players_location (
 )
 
 ;
+
+select * from  game_facts.ball_and_players_location limit 10

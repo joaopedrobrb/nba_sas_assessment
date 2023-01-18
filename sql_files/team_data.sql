@@ -15,3 +15,6 @@ create table if not exists teams_dimensions.team_data (
 )
 
 ;
+
+
+select * from teams_dimensions.team_data limit 10;

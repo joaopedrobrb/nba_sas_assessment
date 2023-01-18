@@ -10,7 +10,9 @@ Hi! My name is João Pedro and this is my repository with all files and codes th
 - SQL CREATE TABLE scripts
     You can check the SQL codes on folder: 
     > **nba_sas_assessment/sql_files**
+    
 - Output .parquet files
+
     You can check the output by reading the **nba_sas_assessment/processed_zone** folders (contains three folders, one for each parquet) or 
     running the **nba_sas_assessment/python_files/main.py** after clone this repository and replace the variables/urls.
 

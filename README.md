@@ -1,7 +1,8 @@
 ## Spurs Data Engineer Technical Assessment
 
-Hi! My name is João Pedro and this is my repository with all files and codes that I made. Please install the pip requirements disponible on **nba_sas_assessment/config/requirements.txt** before
-run the scripts.
+Hi! My name is João Pedro and this is my repository with all files and codes that I made. Please install the pip requirements disponible on before run the scripts.
+>**nba_sas_assessment/config/requirements.txt** 
+
 
 - Python Scripts
     You can check the python script on folder: 
@@ -16,6 +17,7 @@ run the scripts.
 Here is a detailed explanation of my concept when I was facing this challenge:
 
 - EXTRACT
+
     At the first step, we have two paths that we can follow: insert 'links' of raw data into **urls_list** variable (then the code will download all the links on the raw_data folder).
     The second path is just drag and drop the **.7z** file on raw_data folder and let the **urls_list** variable empty (so we can avoid doing repeated transformations).
     Following the process, the code will extract the **.7z** file(s) and store them into **'raw_data/tmp'** folder. 

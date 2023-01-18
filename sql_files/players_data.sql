@@ -11,6 +11,7 @@ create table if not exists teams_dimensions.players_data (
 		,position varchar(10)
 		,game_id varchar(10)
 		,team_id varchar(20)
+		,game_date date
 )
 
 ;

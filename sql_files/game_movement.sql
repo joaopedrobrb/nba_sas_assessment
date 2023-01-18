@@ -14,6 +14,7 @@ create table if not exists game_facts.ball_and_players_location (
         ,period int
         ,game_id varchar(10)
         ,event_id varchar (3)
+        ,game_date date
 )
 
 ;
